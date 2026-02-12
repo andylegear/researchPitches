@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain for Public Health & Regulatory Compliance — Dr. Andrew Le Gear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy:  { 50: '#e8eaf0', 100: '#c5c9d9', 200: '#9ea5be', 300: '#7780a3', 400: '#59648f', 500: '#3b497b', 600: '#354273', 700: '#2d3968', 800: '#26305e', 900: '#0B1D3A' },
+                        teal:  { 50: '#e0f5f5', 100: '#b3e6e6', 200: '#80d6d5', 300: '#4dc5c4', 400: '#26b8b8', 500: '#00ABAB', 600: '#009c9e', 700: '#008a8d', 800: '#00797c', 900: '#005a5d' },
+                        gold:  { 50: '#fff9e6', 100: '#ffefbf', 200: '#ffe495', 300: '#ffd96b', 400: '#ffd14b', 500: '#FFC72C', 600: '#ffbe27', 700: '#ffb421', 800: '#ffaa1b', 900: '#ff9a10' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* Closing-the-loop diagram */
+        .loop-step { transition: all 0.35s cubic-bezier(.4,0,.2,1); }
+        .loop-step:hover { transform: scale(1.08); z-index: 10; }
+        .loop-step:hover .step-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+        .step-tooltip {
+            opacity: 0; visibility: hidden;
+            transform: translateY(6px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        /* Pulse ring on centre logo */
+        @keyframes pulse-ring {
+            0%   { transform: scale(0.85); opacity: 0.7; }
+            70%  { transform: scale(1.15); opacity: 0; }
+            100% { transform: scale(0.85); opacity: 0; }
+        }
+        .pulse-ring { animation: pulse-ring 2.5s cubic-bezier(.4,0,.6,1) infinite; }
+
+        /* Animated dashed circle path */
+        @keyframes dash-rotate { to { stroke-dashoffset: 0; } }
+        .dash-circle {
+            stroke-dasharray: 12 8;
+            stroke-dashoffset: 200;
+            animation: dash-rotate 25s linear infinite;
+        }
+
+        /* Card hover lift */
+        .card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(11,29,58,0.18); }
+
+        /* Publication chip */
+        .pub-chip { transition: background 0.2s ease; }
+        .pub-chip:hover { background: rgba(0,171,171,0.12); }
+
+        /* Timeline dot */
+        .tl-dot { transition: transform 0.2s ease; }
+        .tl-dot:hover { transform: scale(1.2); }
+
+        /* Gradient mesh background */
+        .mesh-bg {
+            background:
+                radial-gradient(ellipse at 10% 20%, rgba(0,171,171,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(255,199,44,0.06) 0%, transparent 50%),
+                linear-gradient(180deg, #0B1D3A 0%, #122549 100%);
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white !important; color: #1a1a1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .mesh-bg { background: white !important; }
+            .card-hover:hover { transform: none; box-shadow: none; }
+            .loop-step:hover { transform: none; }
+        }
+    </style>
+</head>
+<body class="mesh-bg min-h-screen text-gray-100">
+
+    <!-- ─── HEADER ─── -->
+    <header class="relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 pt-8 pb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-teal-400 bg-teal-400/10 px-3 py-1 rounded-full">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Research Vertical Cheat Sheet
+                        </span>
+                        <span class="text-xs text-navy-300">SSPC / Bernal Institute</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
+                        Blockchain for <span class="text-teal-400">Public Health</span><br class="hidden sm:block">
+                        &amp; <span class="text-gold-400">Regulatory Compliance</span>
+                    </h1>
+                    <p class="mt-1.5 text-lg text-teal-200 font-medium italic">A Research Proposal by Dr. Andrew Le Gear</p>
+                    <p class="mt-2 text-base text-navy-200 max-w-xl leading-relaxed">
+                        Closing the Loop on Medical Efficacy — an immutable, privacy-preserving data pipeline from prescription to real-world evidence.
+                    </p>
+                </div>
+                <div class="flex flex-col items-end gap-1 text-right shrink-0">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/13/University_of_Limerick_logo.svg/220px-University_of_Limerick_logo.svg.png" alt="UL Logo" class="h-14 mb-1 brightness-0 invert opacity-80" onerror="this.style.display='none'">
+                    <span class="text-xs text-navy-300 font-medium">University of Limerick</span>
+                    <span class="text-[11px] text-navy-400">Bernal Institute · SSPC Next Round Funding (June 2026)</span>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent"></div>
+    </header>
+
+    <!-- ─── MAIN GRID ─── -->
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ════════════════════════════════════════════════
+             SECTION 1 — CLOSING THE LOOP DIAGRAM  (8 cols)
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-8 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 relative overflow-hidden">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-1">
+                <i data-lucide="refresh-cw" class="w-5 h-5 text-teal-400"></i>
+                The "Closing the Loop" Data Lifecycle
+            </h2>
+            <p class="text-sm text-navy-300 mb-6">Hover each node for implementation details.</p>
+
+            <!-- SVG Diagram -->
+            <div class="relative w-full flex items-center justify-center" style="min-height:460px;">
+                <svg viewBox="0 0 520 520" class="w-full max-w-[500px]" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="260" cy="260" r="190" fill="none" stroke="rgba(0,171,171,0.18)" stroke-width="2" class="dash-circle"/>
+                    <defs>
+                        <marker id="arrowT" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#00ABAB" opacity="0.5"/></marker>
+                    </defs>
+                    <path d="M 355 105 A 190 190 0 0 1 435 280" fill="none" stroke="rgba(0,171,171,0.25)" stroke-width="1.5" marker-end="url(#arrowT)"/>
+                    <path d="M 420 340 A 190 190 0 0 1 310 445" fill="none" stroke="rgba(0,171,171,0.25)" stroke-width="1.5" marker-end="url(#arrowT)"/>
+                    <path d="M 230 450 A 190 190 0 0 1 100 330" fill="none" stroke="rgba(0,171,171,0.25)" stroke-width="1.5" marker-end="url(#arrowT)"/>
+                    <path d="M 95 240 A 190 190 0 0 1 190 100" fill="none" stroke="rgba(0,171,171,0.25)" stroke-width="1.5" marker-end="url(#arrowT)"/>
+                    <circle cx="260" cy="260" r="52" fill="rgba(0,171,171,0.06)" class="pulse-ring"/>
+                    <circle cx="260" cy="260" r="44" fill="#0B1D3A" stroke="#00ABAB" stroke-width="2"/>
+                    <text x="260" y="253" text-anchor="middle" fill="#00ABAB" font-size="10" font-weight="700" letter-spacing="1">IMMUTABLE</text>
+                    <text x="260" y="268" text-anchor="middle" fill="#FFC72C" font-size="9" font-weight="600" letter-spacing="0.5">LEDGER</text>
+                </svg>
+
+                <!-- 1 · HSE / Government -->
+                <div class="loop-step absolute cursor-pointer" style="top:4%;left:50%;transform:translateX(-50%);">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-800 flex items-center justify-center shadow-lg shadow-teal-900/40 border border-teal-500/30">
+                            <i data-lucide="landmark" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-teal-300 whitespace-nowrap">HSE / Government</span>
+                        <span class="text-[10px] text-navy-400 text-center leading-tight max-w-[140px]">Issues secure, blockchain-verified prescription / batch</span>
+                    </div>
+                    <div class="step-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-navy-900/95 border border-teal-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-teal-300 font-semibold mb-1">⚙️ How it works</p>
+                        <p class="text-[11px] text-navy-200 leading-snug"><strong class="text-white">Smart Contracts</strong> on an Ethereum Private PoA chain mint a unique prescription NFT per batch—tamper-proof and auditable by any authorised validator node.</p>
+                    </div>
+                </div>
+
+                <!-- 2 · Distribution / Pharmacy -->
+                <div class="loop-step absolute cursor-pointer" style="top:28%;right:2%;">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg shadow-blue-900/40 border border-blue-500/30">
+                            <i data-lucide="truck" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-blue-300 whitespace-nowrap">Distribution / Pharmacy</span>
+                        <span class="text-[10px] text-navy-400 text-center leading-tight max-w-[130px]">Tracks provenance; zero-counterfeit delivery</span>
+                    </div>
+                    <div class="step-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-navy-900/95 border border-blue-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-blue-300 font-semibold mb-1">⚙️ How it works</p>
+                        <p class="text-[11px] text-navy-200 leading-snug"><strong class="text-white">Supply-chain oracles</strong> and <strong class="text-white">GS1 EPCIS events</strong> write custody transfers to the ledger. Each scan updates the token's state, ensuring full provenance from factory to patient.</p>
+                    </div>
+                </div>
+
+                <!-- 3 · The Patient -->
+                <div class="loop-step absolute cursor-pointer" style="bottom:10%;right:12%;">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-900/40 border border-emerald-500/30">
+                            <i data-lucide="heart-pulse" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-300">The Patient</span>
+                        <span class="text-[10px] text-navy-400 text-center leading-tight max-w-[130px]">Adherence & usage data logged (privacy-preserved)</span>
+                    </div>
+                    <div class="step-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-navy-900/95 border border-emerald-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-emerald-300 font-semibold mb-1">⚙️ How it works</p>
+                        <p class="text-[11px] text-navy-200 leading-snug"><strong class="text-white">Zero-Knowledge Proofs (ZKPs)</strong> allow patients to attest adherence without revealing personal health data. A zk-SNARK proves "I took the medicine" without exposing identity.</p>
+                    </div>
+                </div>
+
+                <!-- 4 · Efficacy Data / RWE -->
+                <div class="loop-step absolute cursor-pointer" style="bottom:10%;left:12%;">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40 border border-amber-400/30">
+                            <i data-lucide="bar-chart-3" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-amber-300">Efficacy Data (RWE)</span>
+                        <span class="text-[10px] text-navy-400 text-center leading-tight max-w-[140px]">Real-world evidence fed back into ledger</span>
+                    </div>
+                    <div class="step-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-navy-900/95 border border-amber-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-amber-300 font-semibold mb-1">⚙️ How it works</p>
+                        <p class="text-[11px] text-navy-200 leading-snug"><strong class="text-white">On-chain analytics oracles</strong> aggregate anonymised outcome data into immutable efficacy scores. <strong class="text-white">Federated learning</strong> models train across hospital nodes without centralising raw data.</p>
+                    </div>
+                </div>
+
+                <!-- 5 · HSE / Regulators -->
+                <div class="loop-step absolute cursor-pointer" style="top:28%;left:2%;">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center shadow-lg shadow-violet-900/40 border border-violet-500/30">
+                            <i data-lucide="file-check-2" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-violet-300">HSE / Regulators</span>
+                        <span class="text-[10px] text-navy-400 text-center leading-tight max-w-[140px]">Immutable efficacy reports inform policy</span>
+                    </div>
+                    <div class="step-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-navy-900/95 border border-violet-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-violet-300 font-semibold mb-1">⚙️ How it works</p>
+                        <p class="text-[11px] text-navy-200 leading-snug"><strong class="text-white">Regulatory dashboards</strong> query the ledger in real-time via GraphQL APIs. Smart-contract–generated compliance certificates are automatically issued when efficacy thresholds are met.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SIDEBAR — KEY METRICS & QUICK FACTS  (4 cols)
+             ════════════════════════════════════════════════ -->
+        <aside class="lg:col-span-4 flex flex-col gap-5">
+
+            <!-- Why Blockchain + Pharma? -->
+            <div class="bg-gradient-to-br from-teal-700/30 to-navy-800/80 backdrop-blur rounded-2xl border border-teal-600/20 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-teal-300 mb-3">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Why Blockchain + Pharma?
+                </h3>
+                <ul class="space-y-2.5 text-sm text-navy-100">
+                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400 mt-0.5 shrink-0"></i><span><strong class="text-white">€10.2 billion</strong> annual EU cost of counterfeit medicines <sup class="text-teal-400 text-[9px] font-bold">[1]</sup></span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400 mt-0.5 shrink-0"></i><span>Up to <strong class="text-white">50 % of patients</strong> are non-adherent to long-term medications, with much of this non-adherence remaining undetected without real-world evidence monitoring <sup class="text-teal-400 text-[9px] font-bold">[2][3]</sup></span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400 mt-0.5 shrink-0"></i><span><strong class="text-white">Zero-trust provenance</strong> removes intermediary audit lag <sup class="text-teal-400 text-[9px] font-bold">[4]</sup></span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400 mt-0.5 shrink-0"></i><span><strong class="text-white">GDPR-compliant</strong> via ZKPs and selective disclosure <sup class="text-teal-400 text-[9px] font-bold">[5]</sup></span></li>
+                </ul>
+            </div>
+
+            <!-- Core Technology Stack -->
+            <div class="bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-gold-400 mb-3">
+                    <i data-lucide="layers" class="w-4 h-4"></i> Core Technology Stack
+                </h3>
+                <div class="grid grid-cols-1 gap-2.5">
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Ledger</p>
+                            <p class="text-xs font-semibold text-white text-right">Ethereum Private PoA Chain</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Enterprise-grade performance with a known validator set for regulatory compliance.</p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Privacy</p>
+                            <p class="text-xs font-semibold text-white text-right">zk-SNARKs</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Cryptographic proofs enable data verification without exposing underlying patient data.</p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Identity</p>
+                            <p class="text-xs font-semibold text-white text-right">DID / SSI</p>
+                        </div>
+                        <p class="text-[10px] text-navy-300 mt-0.5">Decentralized Identifiers / Self-Sovereign Identity</p>
+                        <p class="text-[10px] text-teal-400/80 mt-0.5 leading-snug">Patient-controlled identity enabling GDPR data portability rights.</p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Analytics</p>
+                            <p class="text-xs font-semibold text-white text-right">Federated ML</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Distributed model training across hospital nodes — no centralised raw data exposure.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Impact Numbers -->
+            <div class="bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-white mb-3">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-gold-400"></i> Projected Impact
+                </h3>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div>
+                        <p class="text-2xl font-extrabold text-teal-400">3</p>
+                        <p class="text-[10px] text-navy-400 mt-0.5">PhD<br>Programs</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-extrabold text-gold-400">5+</p>
+                        <p class="text-[10px] text-navy-400 mt-0.5">Industry<br>Partners</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-extrabold text-violet-400">4</p>
+                        <p class="text-[10px] text-navy-400 mt-0.5">Key<br>Publications</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ════════════════════════════════════════════════
+             WHY NOW? — URGENCY & TIMELINESS
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-gradient-to-r from-gold-500/10 via-navy-800/60 to-teal-500/10 backdrop-blur rounded-2xl border border-gold-500/20 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="alarm-clock" class="w-5 h-5 text-gold-400"></i>
+                Why Now? The Window of Opportunity
+            </h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-gold-500/15 flex items-center justify-center">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-gold-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">EU Falsified Medicines Directive</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">The FMD mandates end-to-end serialisation — blockchain is the natural enforcement layer for immutable provenance.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-teal-500/15 flex items-center justify-center">
+                        <i data-lucide="package-search" class="w-4 h-4 text-teal-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">Post-COVID Supply Chain Awareness</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">Pandemic-era drug shortages and quality incidents have created urgent institutional demand for transparent, resilient supply chains.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                        <i data-lucide="lock" class="w-4 h-4 text-blue-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">GDPR & Data Sovereignty</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">Growing regulatory scrutiny demands privacy-by-design architectures. ZKP-enabled blockchain is uniquely positioned to meet these requirements.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-violet-500/15 flex items-center justify-center">
+                        <i data-lucide="blocks" class="w-4 h-4 text-violet-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">Blockchain Technology Maturity</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">Enterprise Ethereum and ZKP tooling have reached production readiness, making pilot deployments technically and economically viable now.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SECTION 2 — RESEARCH TRACK RECORD
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6">
+            <div class="flex flex-col md:flex-row md:items-start gap-8">
+
+                <!-- Left: Supervision -->
+                <div class="md:w-1/3">
+                    <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-gold-400"></i>
+                        Research Track Record
+                    </h2>
+                    <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30 mb-4">
+                        <h3 class="text-sm font-semibold text-teal-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="users" class="w-4 h-4"></i> PhD Supervision
+                        </h3>
+                        <p class="text-sm text-navy-200 leading-relaxed">
+                            <strong class="text-white">3 core-funded PhD programs</strong> through
+                            <span class="text-teal-400 font-semibold">Lero</span> — the Research Ireland Research Centre for Software.
+                            Research threads span blockchain security analytics, DeFi compliance, and decentralised identity for health data.
+                        </p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                        <h3 class="text-sm font-semibold text-gold-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="award" class="w-4 h-4"></i> Funding & Recognition
+                        </h3>
+                        <p class="text-sm text-navy-200 leading-relaxed">
+                            Research Ireland / Lero core-funded. Active contributor to SSPC Digital Enabling Technology pillar. Research aligns with <span class="text-gold-400 font-semibold">Pharma 4.0</span> initiatives and the SSPC next round funding beginning June 2026 strategic plan.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right: Key Publications (hyperlinked) -->
+                <div class="md:w-2/3">
+                    <h3 class="text-sm font-semibold text-teal-300 mb-3 flex items-center gap-1.5">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Key Publications
+                    </h3>
+                    <div class="space-y-3">
+                        <!-- Pub 1 -->
+                        <a href="https://ieeexplore.ieee.org/abstract/document/11229709/" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-teal-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-teal-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Using Graph Cycle Detection to Reveal Suspicious Ethereum Token Transfer Behaviour" <i data-lucide="external-link" class="w-3 h-3 inline text-teal-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-teal-400 font-medium">BCCA 2025</span> · Blockchain Conference</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-teal-900 bg-teal-400 px-2 py-0.5 rounded-full uppercase mt-1">2025</span>
+                        </a>
+                        <!-- Pub 2 -->
+                        <a href="https://www.frontiersin.org/journals/blockchain/articles/10.3389/fbloc.2021.730122/full" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-blue-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Characterizing Wealth Inequality in Cryptocurrencies" <i data-lucide="external-link" class="w-3 h-3 inline text-blue-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-blue-400 font-medium">Frontiers in Blockchain</span> · Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-blue-900 bg-blue-400 px-2 py-0.5 rounded-full uppercase mt-1">2021</span>
+                        </a>
+                        <!-- Pub 3 -->
+                        <a href="https://link.springer.com/chapter/10.1007/978-3-030-44337-5_6" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-violet-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-violet-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-violet-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"A blockchain supported solution for compliant digital security offerings" <i data-lucide="external-link" class="w-3 h-3 inline text-violet-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-violet-400 font-medium">Springer</span> · Book Chapter / Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-violet-900 bg-violet-400 px-2 py-0.5 rounded-full uppercase mt-1">2020</span>
+                        </a>
+                        <!-- Pub 4 -->
+                        <a href="https://www.sciencedirect.com/science/article/pii/S0167404818309568" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-amber-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Assessing the security implication of Bitcoin exchange rates" <i data-lucide="external-link" class="w-3 h-3 inline text-amber-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-amber-400 font-medium">Computers & Security</span> · Elsevier Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-amber-900 bg-amber-400 px-2 py-0.5 rounded-full uppercase mt-1">2019</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SECTION 3 — INDUSTRIAL & INSTITUTIONAL ECOSYSTEM
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-7 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="building-2" class="w-5 h-5 text-teal-400"></i>
+                Industrial & Institutional Ecosystem
+            </h2>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <!-- Bernal / SSPC -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center">
+                            <i data-lucide="microscope" class="w-4 h-4 text-teal-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-teal-300">Bernal / SSPC Alignment</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400 mt-px">▸</span> Digital Enabling Technology pillar</li>
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400 mt-px">▸</span> Pharma 4.0 strategic initiative</li>
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400 mt-px">▸</span> SSPC next round funding beginning June 2026</li>
+                    </ul>
+                </div>
+                <!-- Strategic Partners -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-gold-500/20 flex items-center justify-center">
+                            <i data-lucide="handshake" class="w-4 h-4 text-gold-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-gold-300">Strategic Partners</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                            <i data-lucide="globe" class="w-3 h-3 text-teal-400"></i> Horizon Globex
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                            <i data-lucide="shield" class="w-3 h-3 text-blue-400"></i> GCAC
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                            <i data-lucide="cpu" class="w-3 h-3 text-violet-400"></i> NantX
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             RESEARCH QUESTIONS  (5 cols)
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-5 bg-gradient-to-br from-teal-800/30 to-navy-800/60 backdrop-blur rounded-2xl border border-teal-600/20 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="lightbulb" class="w-5 h-5 text-gold-400"></i>
+                Proposed Research Questions
+            </h2>
+            <ol class="space-y-3 text-sm text-navy-100 list-none">
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-teal-600/30 flex items-center justify-center text-xs font-bold text-teal-300">1</span>
+                    <span>How can <strong class="text-white">permissioned blockchain</strong> architectures guarantee end-to-end pharma supply-chain provenance while satisfying GDPR?</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-teal-600/30 flex items-center justify-center text-xs font-bold text-teal-300">2</span>
+                    <span>What is the optimal <strong class="text-white">zero-knowledge proof</strong> scheme for privacy-preserved patient adherence reporting?</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-teal-600/30 flex items-center justify-center text-xs font-bold text-teal-300">3</span>
+                    <span>Can <strong class="text-white">on-chain real-world evidence</strong> accelerate HSE drug-reimbursement decisions compared to traditional RCTs?</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-teal-600/30 flex items-center justify-center text-xs font-bold text-teal-300">4</span>
+                    <span>How can <strong class="text-white">blockchain-enabled traceability</strong> and immutable real-world evidence improve patient outcomes through enhanced medication adherence monitoring and personalized treatment optimization?</span>
+                </li>
+            </ol>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             VALUE PROPOSITION BY STAKEHOLDER
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-5">
+                <i data-lucide="target" class="w-5 h-5 text-teal-400"></i>
+                Value Proposition by Stakeholder
+            </h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- For Patients -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+                            <i data-lucide="heart-pulse" class="w-5 h-5 text-emerald-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-emerald-300">For Patients</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-emerald-400">▸</span> Guaranteed authentic, counterfeit-free medications</li>
+                        <li class="flex items-start gap-1.5"><span class="text-emerald-400">▸</span> Full data sovereignty through Self-Sovereign Identity</li>
+                        <li class="flex items-start gap-1.5"><span class="text-emerald-400">▸</span> Personalised treatment insights from adherence data</li>
+                    </ul>
+                </div>
+                <!-- For Healthcare Providers -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                            <i data-lucide="stethoscope" class="w-5 h-5 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-blue-300">For Healthcare Providers</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Real-time adherence dashboards per patient cohort</li>
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Evidence-based prescribing informed by on-chain RWE</li>
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Reduced administrative overhead for provenance audits</li>
+                    </ul>
+                </div>
+                <!-- For Regulators -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-violet-600/20 flex items-center justify-center">
+                            <i data-lucide="scale" class="w-5 h-5 text-violet-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-violet-300">For Regulators</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Immutable, auditable compliance records on-chain</li>
+                        <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Rapid post-market surveillance via real-time efficacy data</li>
+                        <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Automated FMD compliance verification</li>
+                    </ul>
+                </div>
+                <!-- For Pharma Industry -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-gold-500/20 flex items-center justify-center">
+                            <i data-lucide="factory" class="w-5 h-5 text-gold-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-gold-300">For the Pharma Industry</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Accelerated drug reimbursement via on-chain RWE</li>
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> End-to-end supply chain visibility reducing recall costs</li>
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Strengthened brand trust through provenance transparency</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             RESEARCH TIMELINE / ROADMAP
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-5">
+                <i data-lucide="gantt-chart" class="w-5 h-5 text-gold-400"></i>
+                Proposed Research Timeline (4-Year Roadmap)
+            </h2>
+            <div class="relative">
+                <!-- Horizontal connector line -->
+                <div class="absolute top-5 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-500/40 via-blue-500/40 via-violet-500/40 to-gold-500/40 hidden md:block"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Year 1 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-teal-600/30 border-2 border-teal-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-teal-300">Y1</span>
+                            </div>
+                            <span class="text-sm font-bold text-teal-300">Architecture & Design</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Literature review & threat modelling</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Ethereum PoA testnet deployment</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Smart contract specification & ZKP scheme selection</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Ethics approval & data governance framework</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 2 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-blue-600/30 border-2 border-blue-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-blue-300">Y2</span>
+                            </div>
+                            <span class="text-sm font-bold text-blue-300">Prototype & Pilot</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Pilot deployment with SSPC pharma partners</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> DID/SSI patient wallet prototype</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Supply-chain oracle integration (GS1)</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> First peer-reviewed publication target</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 3 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-violet-600/30 border-2 border-violet-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-violet-300">Y3</span>
+                            </div>
+                            <span class="text-sm font-bold text-violet-300">Evaluation & RWE</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Federated ML model training across hospital nodes</li>
+                                <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Real-world evidence collection & efficacy analytics</li>
+                                <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> Regulatory dashboard MVP with HSE stakeholders</li>
+                                <li class="flex items-start gap-1.5"><span class="text-violet-400">▸</span> GDPR compliance audit & security assessment</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 4 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-gold-500/30 border-2 border-gold-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-gold-300">Y4</span>
+                            </div>
+                            <span class="text-sm font-bold text-gold-300">Scale & Translate</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Multi-site deployment & cross-border testing</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Policy recommendations to HSE & EU regulators</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Open-source toolkit release & documentation</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> PhD thesis submission & industry transfer pathway</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             REFERENCES
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/40 backdrop-blur rounded-2xl border border-navy-700/40 p-6">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="bookmark" class="w-5 h-5 text-teal-400"></i>
+                References
+            </h2>
+            <ol class="space-y-2.5 text-xs text-navy-300 list-none">
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 text-teal-400 font-bold">[1]</span>
+                    <span>Wajsman, N., et al. (2016). "The Economic Cost of IPR Infringement in the Pharmaceutical Industry." <em class="text-navy-200">European Union Intellectual Property Office (EUIPO).</em></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 text-teal-400 font-bold">[2]</span>
+                    <span>Kardas, P., et al. (2024). "Medication non-adherence: reflecting on two decades." <em class="text-navy-200">BMC Medicine.</em></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 text-teal-400 font-bold">[3]</span>
+                    <span>Pruitt, S.D., et al. (2025). "The silent epidemic of non-adherence – insights from real-world data." <em class="text-navy-200">PMC.</em></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 text-teal-400 font-bold">[4]</span>
+                    <span>Glover, D.G., et al. (2017). "Improving the Traceability of the Clinical Trial Supply Chain." <em class="text-navy-200">Applied Clinical Trials.</em></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="shrink-0 text-teal-400 font-bold">[5]</span>
+                    <span>INATBA. (2025). "Leveraging Zero-Knowledge Proofs for GDPR Compliance in Blockchain Projects." <em class="text-navy-200">International Association for Trusted Blockchain Applications.</em></span>
+                </li>
+            </ol>
+        </section>
+
+    </main>
+
+    <!-- ─── FOOTER ─── -->
+    <footer class="max-w-7xl mx-auto px-6 pb-8">
+        <div class="border-t border-navy-700/40 pt-5 flex flex-col md:flex-row items-center justify-between gap-3">
+            <p class="text-xs text-navy-500">
+                <span class="text-navy-400 font-medium">Dr. Andrew Le Gear · SSPC · Bernal Institute · University of Limerick</span> — Prepared for James & Aishling · February 2026
+            </p>
+            <div class="flex items-center gap-4 text-xs text-navy-500">
+                <span class="flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Confidential — Internal Use Only</span>
+                <span class="flex items-center gap-1"><i data-lucide="printer" class="w-3 h-3"></i> Print-friendly layout</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialise Lucide icons -->
+    <script>lucide.createIcons();</script>
+</body>
+</html>

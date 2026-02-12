@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost-Effective & Private LLMs for Digital Pharma — Dr. Andrew Le Gear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy:  { 50:'#e8eaf0',100:'#c5c9d9',200:'#9ea5be',300:'#7780a3',400:'#59648f',500:'#3b497b',600:'#354273',700:'#2d3968',800:'#26305e',900:'#0B1D3A' },
+                        teal:  { 50:'#e0f5f5',100:'#b3e6e6',200:'#80d6d5',300:'#4dc5c4',400:'#26b8b8',500:'#00ABAB',600:'#009c9e',700:'#008a8d',800:'#00797c',900:'#005a5d' },
+                        gold:  { 50:'#fff9e6',100:'#ffefbf',200:'#ffe495',300:'#ffd96b',400:'#ffd14b',500:'#FFC72C',600:'#ffbe27',700:'#ffb421',800:'#ffaa1b',900:'#ff9a10' },
+                    },
+                    fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family:'Inter',system-ui,sans-serif; }
+
+        /* Diagram interactions */
+        .flow-node { transition: all .35s cubic-bezier(.4,0,.2,1); }
+        .flow-node:hover { transform: scale(1.06); z-index:10; }
+        .flow-node:hover .node-tooltip { opacity:1; visibility:visible; transform:translateY(0); }
+        .node-tooltip { opacity:0; visibility:hidden; transform:translateY(6px); transition:all .3s ease; pointer-events:none; }
+
+        /* Pulse */
+        @keyframes pulse-ring { 0%{transform:scale(.85);opacity:.7} 70%{transform:scale(1.15);opacity:0} 100%{transform:scale(.85);opacity:0} }
+        .pulse-ring { animation: pulse-ring 2.5s cubic-bezier(.4,0,.6,1) infinite; }
+
+        /* Dash animation */
+        @keyframes dash-flow { to { stroke-dashoffset: 0; } }
+        .dash-line { stroke-dasharray:10 6; stroke-dashoffset:160; animation:dash-flow 20s linear infinite; }
+
+        /* Cards */
+        .card-hover { transition: transform .25s ease, box-shadow .25s ease; }
+        .card-hover:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(11,29,58,.18); }
+        .pub-chip { transition: background .2s ease; }
+        .pub-chip:hover { background: rgba(0,171,171,.12); }
+        .tl-dot { transition: transform .2s ease; }
+        .tl-dot:hover { transform: scale(1.2); }
+
+        /* Pillar glow */
+        .pillar-card { transition: border-color .3s ease, box-shadow .3s ease; }
+        .pillar-card:hover { border-color: rgba(0,171,171,.5); box-shadow: 0 0 24px rgba(0,171,171,.1); }
+
+        /* Background */
+        .mesh-bg {
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(0,171,171,.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 85%, rgba(255,199,44,.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99,102,241,.04) 0%, transparent 60%),
+                linear-gradient(180deg,#0B1D3A 0%,#0f2240 100%);
+        }
+
+        /* Proven badge */
+        .proven-badge { background: linear-gradient(135deg, rgba(0,171,171,.15), rgba(34,197,94,.1)); border:1px solid rgba(34,197,94,.3); }
+
+        @media print {
+            body { background:white!important; color:#1a1a1a!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            .mesh-bg { background:white!important; }
+            .card-hover:hover,.flow-node:hover { transform:none; box-shadow:none; }
+        }
+    </style>
+</head>
+<body class="mesh-bg min-h-screen text-gray-100">
+
+    <!-- ─── HEADER ─── -->
+    <header class="relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 pt-8 pb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-teal-400 bg-teal-400/10 px-3 py-1 rounded-full">
+                            <i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> Research Vertical 2 — Cheat Sheet
+                        </span>
+                        <span class="text-xs text-navy-300">SSPC / Bernal Institute</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
+                        Cost-Effective &amp; Private <span class="text-teal-400">LLMs</span><br class="hidden sm:block">
+                        for <span class="text-gold-400">Digital Pharma</span>
+                    </h1>
+                    <p class="mt-1.5 text-lg text-teal-200 font-medium italic">A Research Proposal by Dr. Andrew Le Gear</p>
+                    <p class="mt-2 text-base text-navy-200 max-w-2xl leading-relaxed">
+                        Leveraging a <strong class="text-white">proven CPU-only architecture</strong> to deploy enterprise AI without expensive GPUs or data privacy risks. Built, validated, and ready to scale into pharma.
+                    </p>
+                </div>
+                <div class="flex flex-col items-end gap-1 text-right shrink-0">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/13/University_of_Limerick_logo.svg/220px-University_of_Limerick_logo.svg.png" alt="UL Logo" class="h-14 mb-1 brightness-0 invert opacity-80" onerror="this.style.display='none'">
+                    <span class="text-xs text-navy-300 font-medium">University of Limerick</span>
+                    <span class="text-[11px] text-navy-400">Bernal Institute · Digital Enabling Technology Pillar</span>
+                    <span class="text-[11px] text-gold-400/80 font-medium">SSPC Next Round Funding (June 2026)</span>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent"></div>
+    </header>
+
+    <!-- ─── MAIN GRID ─── -->
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ════════════════════════════════════════════════
+             CORE CHALLENGE BANNER
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-gradient-to-r from-teal-700/20 via-navy-800/60 to-gold-700/20 backdrop-blur rounded-2xl border border-teal-600/20 p-6 card-hover">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-gold-600 flex items-center justify-center shadow-lg">
+                    <i data-lucide="scale" class="w-8 h-8 text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold mb-1">The Core Challenge: The Cost-Privacy Dilemma</h2>
+                    <p class="text-sm text-navy-200 leading-relaxed max-w-3xl">
+                        Enterprises face a painful choice: invest in <strong class="text-white">expensive, high-maintenance GPU infrastructure</strong> to run LLMs in-house, or rely on <strong class="text-white">risky third-party APIs</strong> that send proprietary data to external servers <sup class="text-teal-400 font-bold">[1][2]</sup>. Our research presents a <strong class="text-teal-300">"Third Path"</strong> — a CPU-only, RAG-augmented architecture that is <strong class="text-gold-300">5.8× cheaper</strong> than a V100 GPU equivalent, achieves a <strong class="text-gold-300">21-second mean response time</strong>, and keeps <strong class="text-teal-300">100% of data within the organisation's secure cloud tenant</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             RAG PIPELINE ARCHITECTURE DIAGRAM  (8 cols)
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-8 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-1">
+                <h2 class="flex items-center gap-2 text-lg font-bold">
+                    <i data-lucide="workflow" class="w-5 h-5 text-teal-400"></i>
+                    RAG Pipeline Architecture
+                </h2>
+                <span class="proven-badge text-[10px] font-bold text-green-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">✓ Validated & Deployed</span>
+            </div>
+            <p class="text-sm text-navy-300 mb-5">Single-organisation architecture — all data stays within the secure cloud tenant. Hover for details.</p>
+
+            <div class="relative w-full" style="min-height:400px;">
+                <!-- SVG connectors -->
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 700 380" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <!-- User → Python AI Service -->
+                    <line x1="95" y1="190" x2="235" y2="190" stroke="rgba(0,171,171,.4)" stroke-width="2" class="dash-line"/>
+                    <!-- Python AI Service → Knowledge Base -->
+                    <line x1="350" y1="150" x2="350" y2="75" stroke="rgba(99,102,241,.4)" stroke-width="1.5" class="dash-line"/>
+                    <!-- Knowledge Base → Python AI Service (context return) -->
+                    <line x1="370" y1="75" x2="370" y2="150" stroke="rgba(139,92,246,.25)" stroke-width="1" stroke-dasharray="4 4"/>
+                    <!-- Python AI Service → LLM -->
+                    <line x1="460" y1="190" x2="560" y2="190" stroke="rgba(255,199,44,.4)" stroke-width="2" class="dash-line"/>
+                    <!-- LLM → Python AI Service (response) -->
+                    <line x1="560" y1="210" x2="460" y2="210" stroke="rgba(255,199,44,.25)" stroke-width="1" stroke-dasharray="4 4"/>
+                    <!-- Python AI Service → User (final response) -->
+                    <line x1="235" y1="210" x2="95" y2="210" stroke="rgba(34,197,94,.3)" stroke-width="1" stroke-dasharray="4 4"/>
+
+                    <!-- Labels on flow lines -->
+                    <rect x="130" y="170" width="50" height="16" rx="4" fill="rgba(0,171,171,.12)" stroke="rgba(0,171,171,.3)" stroke-width="0.5"/>
+                    <text x="155" y="181" text-anchor="middle" fill="#00ABAB" font-size="7" font-weight="600">QUERY</text>
+
+                    <rect x="135" y="215" width="50" height="16" rx="4" fill="rgba(34,197,94,.12)" stroke="rgba(34,197,94,.3)" stroke-width="0.5"/>
+                    <text x="160" y="226" text-anchor="middle" fill="#22C55E" font-size="7" font-weight="600">ANSWER</text>
+
+                    <rect x="375" y="55" width="55" height="16" rx="4" fill="rgba(99,102,241,.12)" stroke="rgba(99,102,241,.3)" stroke-width="0.5"/>
+                    <text x="402" y="66" text-anchor="middle" fill="#818CF8" font-size="7" font-weight="600">CONTEXT</text>
+
+                    <rect x="480" y="173" width="60" height="16" rx="4" fill="rgba(255,199,44,.12)" stroke="rgba(255,199,44,.3)" stroke-width="0.5"/>
+                    <text x="510" y="184" text-anchor="middle" fill="#FFC72C" font-size="7" font-weight="600">Q + CONTEXT</text>
+
+                    <!-- Security Boundary -->
+                    <rect x="200" y="20" width="480" height="340" rx="16" fill="none" stroke="rgba(0,171,171,.15)" stroke-width="1.5" stroke-dasharray="8 4"/>
+                    <text x="440" y="348" text-anchor="middle" fill="rgba(0,171,171,.4)" font-size="9" font-weight="600">🔒 SECURE CLOUD TENANT — DATA NEVER LEAVES</text>
+                </svg>
+
+                <!-- Node: User -->
+                <div class="flow-node absolute cursor-pointer" style="top:43%;left:0%;">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg border border-emerald-400/30">
+                            <i data-lucide="user" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-emerald-300">User</span>
+                        <span class="text-[9px] text-navy-400 text-center max-w-[80px]">Submits natural language query</span>
+                    </div>
+                    <div class="node-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-navy-900/95 border border-emerald-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-emerald-300 font-semibold mb-1">👤 End User</p>
+                        <p class="text-[11px] text-navy-200 leading-snug">Employee queries the system via a web interface. The question is sent to the Python AI Service for processing. No external API calls are made.</p>
+                    </div>
+                </div>
+
+                <!-- Node: Python AI Service (Orchestrator) -->
+                <div class="flow-node absolute cursor-pointer" style="top:38%;left:33%;transform:translateX(-50%);">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="pulse-ring absolute w-20 h-20 rounded-full bg-teal-500/10"></div>
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-700 flex items-center justify-center shadow-xl border-2 border-teal-400/40 relative z-10">
+                            <i data-lucide="cpu" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <span class="text-[11px] font-bold text-teal-300">Python AI Service</span>
+                        <span class="text-[9px] text-navy-400 text-center max-w-[110px]">Orchestrator: query processing & RAG coordination</span>
+                    </div>
+                    <div class="node-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-navy-900/95 border border-teal-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-teal-300 font-semibold mb-1">⚙️ Orchestration Layer</p>
+                        <p class="text-[11px] text-navy-200 leading-snug">The <strong class="text-white">Python AI Service</strong> is the central coordinator. It receives the user query, retrieves relevant context from the Knowledge Base via FAISS vector search, constructs the prompt, sends it to the LLM, and returns the grounded answer.</p>
+                    </div>
+                </div>
+
+                <!-- Node: Knowledge Base (FAISS) -->
+                <div class="flow-node absolute cursor-pointer" style="top:2%;left:50%;transform:translateX(-50%);">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center shadow-lg border border-indigo-400/30">
+                            <i data-lucide="database" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-indigo-300">Knowledge Base</span>
+                        <span class="text-[9px] text-navy-400 text-center max-w-[120px]">FAISS vector search over internal documents</span>
+                    </div>
+                    <div class="node-tooltip absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-navy-900/95 border border-indigo-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-indigo-300 font-semibold mb-1">📚 FAISS Vector Store</p>
+                        <p class="text-[11px] text-navy-200 leading-snug">Internal documents are chunked, embedded, and indexed using <strong class="text-white">FAISS</strong>. At query time, the most relevant chunks are retrieved to provide grounding context, enabling a smaller model to produce accurate, domain-specific answers.</p>
+                    </div>
+                </div>
+
+                <!-- Node: LLM (Gemma 2B) -->
+                <div class="flow-node absolute cursor-pointer" style="top:38%;right:2%;transform:translateY(0%);">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-500 to-amber-700 flex items-center justify-center shadow-lg border border-gold-400/30">
+                            <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-gold-300">Gemma 2B (Q4)</span>
+                        <span class="text-[9px] text-navy-400 text-center max-w-[110px]">4-bit quantized, CPU-only via llama.cpp</span>
+                    </div>
+                    <div class="node-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-navy-900/95 border border-gold-700/40 rounded-xl p-3 shadow-xl z-20">
+                        <p class="text-[11px] text-gold-300 font-semibold mb-1">🧠 Quantized LLM</p>
+                        <p class="text-[11px] text-navy-200 leading-snug">Google's <strong class="text-white">Gemma 2B</strong> model, 4-bit quantized in GGUF format, running via <strong class="text-white">llama-cpp-python</strong> on standard CPUs. No GPU required. Achieves a 21-second mean response time for typical FAQ workloads.</p>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="absolute bottom-2 right-2 flex items-center gap-4 text-[9px] text-navy-400">
+                    <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-teal-400/50 inline-block"></span> Query flow</span>
+                    <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-gold-400/50 inline-block"></span> Prompt + context</span>
+                    <span class="flex items-center gap-1"><span class="w-4 border-t border-dashed border-green-400/50 inline-block"></span> Response</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SIDEBAR — TECH STACK & KEY METRICS  (4 cols)
+             ════════════════════════════════════════════════ -->
+        <aside class="lg:col-span-4 flex flex-col gap-5">
+
+            <!-- Core Technology Stack -->
+            <div class="bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-gold-400 mb-3">
+                    <i data-lucide="layers" class="w-4 h-4"></i> Core Technology Stack
+                </h3>
+                <div class="grid grid-cols-1 gap-2.5">
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">RAG Pipeline</p>
+                            <p class="text-xs font-semibold text-white text-right">FAISS Vector Search</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Grounds responses in a secure, internal knowledge base for accuracy and domain-specific context. <sup class="text-teal-400 font-bold">[10]</sup></p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Inference</p>
+                            <p class="text-xs font-semibold text-white text-right">CPU-Only (llama.cpp)</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Uses llama-cpp-python to run inference on standard CPUs, eliminating the need for expensive, specialised GPUs. <sup class="text-teal-400 font-bold">[9]</sup></p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Model</p>
+                            <p class="text-xs font-semibold text-white text-right">Gemma 2B (4-bit Q)</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Google's Gemma 2B, 4-bit quantized in GGUF format. Drastically reduces memory and computational costs. <sup class="text-teal-400 font-bold">[6][8]</sup></p>
+                    </div>
+                    <div class="bg-navy-700/50 rounded-lg px-3 py-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-navy-400 uppercase tracking-wider shrink-0">Deployment</p>
+                            <p class="text-xs font-semibold text-white text-right">Azure App Service</p>
+                        </div>
+                        <p class="text-[10px] text-teal-400/80 mt-1 leading-snug">Containerised Azure App Service Plan — a stable, scalable environment at a fraction of the cost of a GPU VM.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validated Key Metrics -->
+            <div class="bg-gradient-to-br from-teal-500/15 to-navy-800/80 backdrop-blur rounded-2xl border border-teal-500/20 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-teal-300 mb-3">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Validated Key Metrics
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-navy-700/40 rounded-xl p-3 text-center border border-navy-600/30">
+                        <p class="text-2xl font-extrabold text-gold-400">5.8×</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5 leading-snug">Cheaper than<br>V100 GPU</p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-3 text-center border border-navy-600/30">
+                        <p class="text-2xl font-extrabold text-teal-400">21s</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5 leading-snug">Mean Response<br>Time</p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-3 text-center border border-navy-600/30">
+                        <p class="text-2xl font-extrabold text-emerald-400">~$204</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5 leading-snug">Monthly Ops<br>Cost</p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-3 text-center border border-navy-600/30">
+                        <p class="text-2xl font-extrabold text-violet-400">100%</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5 leading-snug">Data<br>Sovereignty</p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-navy-400 leading-snug mt-3 text-center italic">All metrics from a live, deployed FAQ system — not projections.</p>
+            </div>
+
+            <!-- Funding Model -->
+            <div class="bg-gradient-to-br from-gold-500/15 to-navy-800/80 backdrop-blur rounded-2xl border border-gold-500/20 p-5 card-hover">
+                <h3 class="flex items-center gap-2 text-sm font-bold text-gold-300 mb-3">
+                    <i data-lucide="coins" class="w-4 h-4"></i> Proposed Funding Model
+                </h3>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="flex-1 bg-teal-500/20 rounded-lg p-3 text-center border border-teal-500/20">
+                        <p class="text-2xl font-extrabold text-teal-400">50%</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5">Industrial Partners</p>
+                    </div>
+                    <div class="text-navy-500 font-bold text-lg">+</div>
+                    <div class="flex-1 bg-gold-500/15 rounded-lg p-3 text-center border border-gold-500/20">
+                        <p class="text-2xl font-extrabold text-gold-400">50%</p>
+                        <p class="text-[10px] text-navy-300 mt-0.5">Bernal Institute</p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-navy-400 leading-snug mb-3">Co-investment model: industry partners get proven, cost-effective AI that protects IP; Bernal secures world-class research output and a PhD training pipeline.</p>
+                <h4 class="text-[10px] text-navy-400 uppercase tracking-wider font-semibold mb-1.5">Additional Funding Avenues</h4>
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 bg-navy-700/40 rounded-lg px-2.5 py-1.5 border border-navy-600/20">
+                        <i data-lucide="landmark" class="w-3 h-3 text-teal-400 shrink-0"></i>
+                        <p class="text-[10px] text-navy-200"><strong class="text-white">Research Ireland (RI)</strong> — Frontiers / Laureate Awards & Centre funding</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-navy-700/40 rounded-lg px-2.5 py-1.5 border border-navy-600/20">
+                        <i data-lucide="euro" class="w-3 h-3 text-gold-400 shrink-0"></i>
+                        <p class="text-[10px] text-navy-200"><strong class="text-white">Enterprise Ireland (EI)</strong> — Commercialisation Fund & Innovation Partnerships</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-navy-700/40 rounded-lg px-2.5 py-1.5 border border-navy-600/20">
+                        <i data-lucide="flag" class="w-3 h-3 text-emerald-400 shrink-0"></i>
+                        <p class="text-[10px] text-navy-200"><strong class="text-white">Gov. of Ireland</strong> — IRC Postgrad & Postdoc Scholarships</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-navy-700/40 rounded-lg px-2.5 py-1.5 border border-navy-600/20">
+                        <i data-lucide="globe" class="w-3 h-3 text-blue-400 shrink-0"></i>
+                        <p class="text-[10px] text-navy-200"><strong class="text-white">EU Horizon Europe</strong> — ERC / MSCA & Digital Europe Programme</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ════════════════════════════════════════════════
+             RESEARCH PILLARS (EVIDENCE-BASED)
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="columns-3" class="w-5 h-5 text-teal-400"></i>
+                Proven Research Pillars — From Our Published Work
+            </h2>
+            <div class="grid md:grid-cols-3 gap-5">
+                <!-- Pillar 1: CPU-Only Inference -->
+                <div class="pillar-card bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg">
+                            <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-teal-300">CPU-Only Inference</h3>
+                            <p class="text-[10px] text-navy-400 font-medium">The "Third Path" — Proven</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-navy-200 leading-relaxed mb-3">
+                        We demonstrated that a <strong class="text-white">4-bit quantized Gemma 2B model</strong> running on standard CPUs via llama-cpp-python achieves a <strong class="text-gold-300">21-second mean response time</strong> for FAQ workloads. Our architecture is <strong class="text-gold-300">5.8× more cost-effective</strong> than a comparable V100 GPU setup — validated in a live production deployment.
+                    </p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[9px] bg-teal-500/15 text-teal-300 px-2 py-0.5 rounded-full font-medium">llama.cpp</span>
+                        <span class="text-[9px] bg-teal-500/15 text-teal-300 px-2 py-0.5 rounded-full font-medium">4-bit GGUF</span>
+                        <span class="text-[9px] bg-teal-500/15 text-teal-300 px-2 py-0.5 rounded-full font-medium">5.8× Savings</span>
+                    </div>
+                </div>
+
+                <!-- Pillar 2: RAG for Accuracy -->
+                <div class="pillar-card bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center shadow-lg">
+                            <i data-lucide="search" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-indigo-300">RAG for Accuracy</h3>
+                            <p class="text-[10px] text-navy-400 font-medium">The Key Enabler</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-navy-200 leading-relaxed mb-3">
+                        Our <strong class="text-white">RAG pipeline using FAISS vector search</strong> enables a smaller, faster model to perform accurately by grounding every response in narrow, relevant context retrieved from an internal knowledge base <sup class="text-indigo-400 font-bold">[3][4][5]</sup>. This is the architectural breakthrough that makes CPU-only inference viable for enterprise use.
+                    </p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[9px] bg-indigo-500/15 text-indigo-300 px-2 py-0.5 rounded-full font-medium">FAISS</span>
+                        <span class="text-[9px] bg-indigo-500/15 text-indigo-300 px-2 py-0.5 rounded-full font-medium">Vector Search</span>
+                        <span class="text-[9px] bg-indigo-500/15 text-indigo-300 px-2 py-0.5 rounded-full font-medium">Context Grounding</span>
+                    </div>
+                </div>
+
+                <!-- Pillar 3: Validated Cost & Performance -->
+                <div class="pillar-card bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-gold-500 to-amber-700 flex items-center justify-center shadow-lg">
+                            <i data-lucide="badge-check" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-gold-300">Validated in Production</h3>
+                            <p class="text-[10px] text-navy-400 font-medium">Not Theoretical — Deployed</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-navy-200 leading-relaxed mb-3">
+                        This system is not a simulation. It is a <strong class="text-white">live, deployed FAQ system</strong> benchmarked with a mean response time of <strong class="text-gold-300">21 seconds</strong> and a monthly operational cost of <strong class="text-gold-300">~$204</strong> on Azure App Service. The findings are documented in a peer-reviewed submission, proving real-world viability.
+                    </p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[9px] bg-gold-500/15 text-gold-300 px-2 py-0.5 rounded-full font-medium">Azure App Service</span>
+                        <span class="text-[9px] bg-gold-500/15 text-gold-300 px-2 py-0.5 rounded-full font-medium">~$204/mo</span>
+                        <span class="text-[9px] bg-gold-500/15 text-gold-300 px-2 py-0.5 rounded-full font-medium">Live System</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             WHY NOW?
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-gradient-to-r from-gold-500/10 via-navy-800/60 to-teal-500/10 backdrop-blur rounded-2xl border border-gold-500/20 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="alarm-clock" class="w-5 h-5 text-gold-400"></i>
+                Why Now? The Convergence of Opportunity
+            </h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-teal-500/15 flex items-center justify-center">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-teal-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">Enterprise LLM Adoption Barriers</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">Industry reports consistently cite cost and data privacy as the #1 and #2 obstacles to enterprise LLM adoption <sup class="text-teal-400 font-bold">[1]</sup>. Our architecture directly solves both.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                        <i data-lucide="package" class="w-4 h-4 text-blue-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">Quantization &amp; RAG Maturity</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">Breakthroughs in 4-bit quantization (GGUF format) <sup class="text-blue-400 font-bold">[6][7]</sup> and mature RAG tooling (FAISS, llama.cpp) have made CPU-only inference a practical reality for the first time.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-violet-500/15 flex items-center justify-center">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-violet-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">EU AI Act &amp; GDPR Pressure</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">The EU AI Act mandates data governance for high-risk AI systems. Our "data-stays-local" architecture is compliant by design, not by retrofit.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0 w-9 h-9 rounded-lg bg-gold-500/15 flex items-center justify-center">
+                        <i data-lucide="flask-conical" class="w-4 h-4 text-gold-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white">SSPC Funding Alignment</p>
+                        <p class="text-xs text-navy-300 leading-snug mt-0.5">SSPC's next round funding beginning June 2026 is explicitly targeting digital enabling technologies <sup class="text-gold-400 font-bold">[11][12]</sup> — this proposal arrives with a validated prototype, not just a plan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             VALUE PROPOSITION BY STAKEHOLDER
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-5">
+                <i data-lucide="target" class="w-5 h-5 text-teal-400"></i>
+                Value Proposition by Stakeholder
+            </h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- CTOs / CFOs -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-gold-600/20 flex items-center justify-center">
+                            <i data-lucide="briefcase" class="w-5 h-5 text-gold-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-gold-300">For CTOs / CFOs</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Reduce AI operational costs by up to <strong class="text-white">85%</strong> (5.8× cheaper) vs. GPU infrastructure <sup class="text-gold-400 font-bold">[13]</sup></li>
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Proven ~$204/month operational cost for a production LLM system</li>
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Eliminate multi-year GPU procurement cycles</li>
+                        <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Predictable, linear scaling on standard cloud infrastructure</li>
+                    </ul>
+                </div>
+                <!-- CSOs / Compliance Officers -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-teal-600/20 flex items-center justify-center">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-teal-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-teal-300">For CSOs / Compliance</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Achieve <strong class="text-white">100% data sovereignty</strong> — all data and inference within your secure tenant</li>
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Eliminate third-party API risks entirely <sup class="text-teal-400 font-bold">[2]</sup></li>
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Simplify GDPR & HIPAA compliance — no data leaves the organisation</li>
+                        <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Full audit trail of all queries and responses</li>
+                    </ul>
+                </div>
+                <!-- IT Departments -->
+                <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                            <i data-lucide="server" class="w-5 h-5 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-blue-300">For IT Departments</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-navy-200">
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Deploy on existing, general-purpose Azure App Service Plans</li>
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> No specialised GPU hardware to procure or manage</li>
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Containerised deployment — standard CI/CD and DevOps practices</li>
+                        <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Familiar Python + Azure stack — no exotic dependencies</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             PROOF OF CREDIBILITY / PUBLICATIONS
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6">
+            <div class="flex flex-col md:flex-row md:items-start gap-8">
+                <!-- Left: Supervision & Alignment -->
+                <div class="md:w-1/3">
+                    <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-gold-400"></i>
+                        Proof of Credibility
+                    </h2>
+                    <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30 mb-4">
+                        <h3 class="text-sm font-semibold text-teal-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="users" class="w-4 h-4"></i> PhD Supervision
+                        </h3>
+                        <p class="text-sm text-navy-200 leading-relaxed">
+                            <strong class="text-white">3 core-funded PhD programs</strong> through
+                            <span class="text-teal-400 font-semibold">Lero</span> — the Research Ireland Research Centre for Software.
+                            Research spans blockchain analytics, decentralised identity, and privacy-preserving computation.
+                        </p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30 mb-4">
+                        <h3 class="text-sm font-semibold text-gold-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="award" class="w-4 h-4"></i> Institutional Alignment
+                        </h3>
+                        <p class="text-sm text-navy-200 leading-relaxed">
+                            Research Ireland / Lero core-funded. Directly aligned with the Bernal Institute <span class="text-gold-400 font-semibold">Digital Enabling Technology</span> pillar and SSPC next round funding beginning June 2026.
+                        </p>
+                    </div>
+                    <div class="bg-navy-700/40 rounded-xl p-4 border border-navy-600/30">
+                        <h3 class="text-sm font-semibold text-blue-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="handshake" class="w-4 h-4"></i> Strategic Partners
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                                <i data-lucide="cpu" class="w-3 h-3 text-violet-400"></i> NantX
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                                <i data-lucide="shield" class="w-3 h-3 text-blue-400"></i> GCAC
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold bg-navy-600/60 text-white px-3 py-1.5 rounded-full border border-navy-500/30">
+                                <i data-lucide="globe" class="w-3 h-3 text-teal-400"></i> Horizon Globex
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Key Publications -->
+                <div class="md:w-2/3">
+                    <h3 class="text-sm font-semibold text-teal-300 mb-3 flex items-center gap-1.5">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Key Publications
+                    </h3>
+                    <div class="space-y-3">
+                        <!-- ★ NEW FLAGSHIP PUBLICATION — the paper this proposal is based on -->
+                        <div class="pub-chip flex items-start gap-3 rounded-xl p-3.5 border-2 border-emerald-500/40 bg-emerald-500/5 block relative">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-emerald-600/25 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold text-white leading-snug">"A Cost-Effective Architecture for Enterprise LLM Applications Using RAG and CPU-Only Inference"</p>
+                                <p class="text-xs text-emerald-400 mt-1 font-semibold">⬆ This proposal builds directly on the findings of this paper.</p>
+                                <p class="text-xs text-navy-400 mt-0.5">Recently Submitted · 2026</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-emerald-900 bg-emerald-400 px-2 py-0.5 rounded-full uppercase mt-1">2026</span>
+                        </div>
+
+                        <a href="https://ieeexplore.ieee.org/abstract/document/11229709/" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-teal-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-teal-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Using Graph Cycle Detection to Reveal Suspicious Ethereum Token Transfer Behaviour" <i data-lucide="external-link" class="w-3 h-3 inline text-teal-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-teal-400 font-medium">BCCA 2025</span> · Blockchain Conference</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-teal-900 bg-teal-400 px-2 py-0.5 rounded-full uppercase mt-1">2025</span>
+                        </a>
+                        <a href="https://www.frontiersin.org/journals/blockchain/articles/10.3389/fbloc.2021.730122/full" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-blue-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Characterizing Wealth Inequality in Cryptocurrencies" <i data-lucide="external-link" class="w-3 h-3 inline text-blue-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-blue-400 font-medium">Frontiers in Blockchain</span> · Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-blue-900 bg-blue-400 px-2 py-0.5 rounded-full uppercase mt-1">2021</span>
+                        </a>
+                        <a href="https://link.springer.com/chapter/10.1007/978-3-030-44337-5_6" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-violet-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-violet-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-violet-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"A blockchain supported solution for compliant digital security offerings" <i data-lucide="external-link" class="w-3 h-3 inline text-violet-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-violet-400 font-medium">Springer</span> · Book Chapter / Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-violet-900 bg-violet-400 px-2 py-0.5 rounded-full uppercase mt-1">2020</span>
+                        </a>
+                        <a href="https://www.sciencedirect.com/science/article/pii/S0167404818309568" target="_blank" rel="noopener noreferrer" class="pub-chip flex items-start gap-3 rounded-xl p-3 border border-navy-600/20 block hover:border-amber-500/40 no-underline">
+                            <div class="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-white leading-snug">"Assessing the security implication of Bitcoin exchange rates" <i data-lucide="external-link" class="w-3 h-3 inline text-amber-400 ml-1"></i></p>
+                                <p class="text-xs text-navy-400 mt-0.5"><span class="text-amber-400 font-medium">Computers & Security</span> · Elsevier Journal</p>
+                            </div>
+                            <span class="shrink-0 text-[10px] font-bold text-amber-900 bg-amber-400 px-2 py-0.5 rounded-full uppercase mt-1">2019</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             RESEARCH TIMELINE / ROADMAP (Y0 = Completed)
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/60 backdrop-blur rounded-2xl border border-navy-700/60 p-6 card-hover">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-5">
+                <i data-lucide="gantt-chart" class="w-5 h-5 text-gold-400"></i>
+                Research Roadmap — Building on a Proven Foundation
+            </h2>
+            <div class="relative">
+                <div class="absolute top-5 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500/50 via-teal-500/40 via-blue-500/40 via-violet-500/40 to-gold-500/40 hidden md:block"></div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Year 0 (Completed) -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-emerald-600/40 border-2 border-emerald-400 flex items-center justify-center z-10 relative">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-300"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold text-emerald-300">Y0 — Foundation</span>
+                                <span class="block text-[10px] text-emerald-400/80 font-semibold uppercase tracking-wider">✓ Completed</span>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-500/5 rounded-xl p-3 border border-emerald-500/20 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-emerald-400">✓</span> Designed & built CPU-only RAG architecture</li>
+                                <li class="flex items-start gap-1.5"><span class="text-emerald-400">✓</span> Achieved 5.8× cost reduction vs. GPU (V100)</li>
+                                <li class="flex items-start gap-1.5"><span class="text-emerald-400">✓</span> Deployed live FAQ system at ~$204/month</li>
+                                <li class="flex items-start gap-1.5"><span class="text-emerald-400">✓</span> Research paper submitted for peer review</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 1 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-teal-600/30 border-2 border-teal-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-teal-300">Y1</span>
+                            </div>
+                            <span class="text-sm font-bold text-teal-300">Pharma Pilot</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Apply proven architecture to pharma use case (e.g., clinical trial documentation Q&A)</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Begin extending privacy model with TCF / DP</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> Engage SSPC industrial partners for pilot data</li>
+                                <li class="flex items-start gap-1.5"><span class="text-teal-400">▸</span> PhD programme recruitment (Research Ireland)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 2 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-blue-600/30 border-2 border-blue-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-blue-300">Y2</span>
+                            </div>
+                            <span class="text-sm font-bold text-blue-300">Multi-Partner FL</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Explore Federated Learning across partners using the cost-effective CPU architecture as each node</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Cross-organisation model training without raw data sharing</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Formal privacy guarantees & DP verification</li>
+                                <li class="flex items-start gap-1.5"><span class="text-blue-400">▸</span> Peer-reviewed publications on pharma pilot results</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Year 3 -->
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="tl-dot w-10 h-10 rounded-full bg-gold-500/30 border-2 border-gold-400 flex items-center justify-center z-10 relative">
+                                <span class="text-xs font-bold text-gold-300">Y3</span>
+                            </div>
+                            <span class="text-sm font-bold text-gold-300">Audit &amp; Transfer</span>
+                        </div>
+                        <div class="bg-navy-700/40 rounded-xl p-3 border border-navy-600/30 ml-1">
+                            <ul class="space-y-1 text-xs text-navy-200">
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Blockchain-based immutable audit trails for federated model updates</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> EU AI Act compliance benchmarking & GxP validation</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> Open-source privacy toolkit release</li>
+                                <li class="flex items-start gap-1.5"><span class="text-gold-400">▸</span> PhD submissions, licensing & commercialisation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             REFERENCES
+             ════════════════════════════════════════════════ -->
+        <section class="lg:col-span-12 bg-navy-800/40 backdrop-blur rounded-2xl border border-navy-700/40 p-6">
+            <h2 class="flex items-center gap-2 text-lg font-bold mb-4">
+                <i data-lucide="bookmark" class="w-5 h-5 text-teal-400"></i>
+                References
+            </h2>
+            <ol class="space-y-2 text-xs text-navy-300 leading-relaxed list-none">
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[1]</span>
+                    <span>The CUBE Research (2025). "Enterprise LLM Adoption Surges Amid Security and Cost Concerns." <a href="https://thecuberesearch.com/enterprise-llm-adoption-accelerates-amid-security-and-cost-concerns/" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">thecuberesearch.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[2]</span>
+                    <span>White &amp; Case LLP (2026). "Patient, commercial and regulatory concerns | New frontiers: How AI is transforming the life sciences industry." <a href="https://www.whitecase.com/insight-our-thinking/new-frontiers-how-ai-is-transforming-the-life-sciences-industry/patient-commercial-regulatory-concerns" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">whitecase.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[3]</span>
+                    <span>Woo, J.J., et al. (2025). "Custom large language models improve accuracy: comparing retrieval augmented generation and artificial intelligence agents to noncustom models for evidence-based medicine." <em>The Journal of Arthroplasty.</em> <a href="https://www.sciencedirect.com/science/article/pii/S0749806324008831" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">sciencedirect.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[4]</span>
+                    <span>Yan, S.Q., et al. (2024). "Corrective retrieval augmented generation." <em>OpenReview.</em> <a href="https://openreview.net/forum?id=JnWJbrnaUE" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">openreview.net <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[5]</span>
+                    <span>Yu, H.Q., &amp; McQuade, F. (2025). "RAG-KG-IL: A multi-agent hybrid framework for reducing hallucinations..." <em>arXiv preprint arXiv:2503.13514.</em> <a href="https://arxiv.org/abs/2503.13514" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">arxiv.org <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[6]</span>
+                    <span>Hugging Face (2023). "Making LLMs even more accessible with bitsandbytes, 4-bit quantization." <a href="https://huggingface.co/blog/4bit-transformers-bitsandbytes" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">huggingface.co <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[7]</span>
+                    <span>Towards Data Science (2024). "Democratizing LLMs: 4-bit Quantization for Optimal LLM Inference." <a href="https://towardsdatascience.com/democratizing-llms-4-bit-quantization-for-optimal-llm-inference-be30cf4e0e34/" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">towardsdatascience.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[8]</span>
+                    <span>DeepSense.ai (2024). "Cutting LLM Costs via Quantization &amp; Fine-Tuning." <a href="https://deepsense.ai/blog/reducing-the-cost-of-llms-with-quantization-and-efficient-fine-tuning-how-can-businesses-benefit-from-generative-ai-with-limited-hardware/" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">deepsense.ai <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[9]</span>
+                    <span>GitHub (ggml-org). "llama.cpp: LLM inference in C/C++." <a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">github.com/ggml-org/llama.cpp <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[10]</span>
+                    <span>Facebook AI Research (2017). "Faiss: A library for efficient similarity search." <a href="https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">engineering.fb.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[11]</span>
+                    <span>Suriyaamporn, P., et al. (2025). "The Future trends of Artificial Intelligence... in the new era of pharmaceutical sciences and Industry 4.0." <em>Drug Development and Industrial Pharmacy.</em> <a href="https://www.tandfonline.com/doi/abs/10.1080/03639045.2025.2590707" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">tandfonline.com <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[12]</span>
+                    <span>ISPE (n.d.). "Pharma 4.0 Operating Model." <a href="https://ispe.org/initiatives/pharma-4.0" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">ispe.org <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-teal-400 font-bold shrink-0">[13]</span>
+                    <span>Poddar, A., &amp; Rao, S.R. (2024). "Evolving intellectual property landscape for AI-driven innovations in the biomedical sector..." <em>Frontiers in Artificial Intelligence.</em> <a href="https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2024.1372161/full" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:underline">frontiersin.org <i data-lucide="external-link" class="w-2.5 h-2.5 inline"></i></a></span>
+                </li>
+            </ol>
+        </section>
+
+    </main>
+
+    <!-- ─── FOOTER ─── -->
+    <footer class="max-w-7xl mx-auto px-6 pb-8">
+        <div class="border-t border-navy-700/40 pt-5 flex flex-col md:flex-row items-center justify-between gap-3">
+            <p class="text-xs text-navy-500">
+                <span class="text-navy-400 font-medium">Dr. Andrew Le Gear · SSPC · Bernal Institute · University of Limerick</span> — Prepared for James & Aishling · February 2026
+            </p>
+            <div class="flex items-center gap-4 text-xs text-navy-500">
+                <span class="flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Confidential — Internal Use Only</span>
+                <span class="flex items-center gap-1"><i data-lucide="printer" class="w-3 h-3"></i> Print-friendly layout</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>
